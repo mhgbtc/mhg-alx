@@ -205,23 +205,23 @@ def create_venue_submission():
 
 @app.route('/venues/<venue_id>', methods=['DELETE'])
 def delete_venue(venue_id):
-		# TODO: Complete this endpoint for taking a venue_id, and using
-		# SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
-		venue = Venue.query.get(venue_id)
-		
-		if not venue:
-			abort(404)
-		
-		try:
-			db.session.delete(venue)
-			db.session.commit()
-		except:
-			db.session.rollback()
-		finally:
-			db.session.close()
-		# BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
-		# clicking that button delete it from the db then redirect the user to the homepage
-		return render_template('pages/venues.html')
+	# TODO: Complete this endpoint for taking a venue_id, and using
+	# SQLAlchemy ORM to delete a record. Handle cases where the session commit could fail.
+	venue = Venue.query.get(venue_id)
+	
+	if not venue:
+		abort(404)
+	
+	try:
+		db.session.delete(venue)
+		db.session.commit()
+	except:
+		db.session.rollback()
+	finally:
+		db.session.close()
+	# BONUS CHALLENGE: Implement a button to delete a Venue on a Venue Page, have it so that
+	# clicking that button delete it from the db then redirect the user to the homepage
+	return render_template('pages/venues.html')
 
 
 # ================================================================== #
@@ -233,9 +233,9 @@ def delete_venue(venue_id):
 
 @app.route('/artists')
 def artists():
-		data = Artist.query.with_entities(Artist.id, Artist.name).all()
-		# TODO: replace with real data returned from querying the database
-		return render_template('pages/artists.html', artists=data)
+	data = Artist.query.with_entities(Artist.id, Artist.name).all()
+	# TODO: replace with real data returned from querying the database
+	return render_template('pages/artists.html', artists=data)
 
 # --------------------------Chercher des artistes avec non sensitive casse--------------------------------------------#
 
@@ -263,7 +263,7 @@ def show_artist(artist_id):
 
 	# Une jointure s'impose parce qu'on fait intervenir la table Show
 
-	shows_query = db.session.query(Show).join(Artist).filter(Artist.id==artist_id).order_by(Show.start_time)
+	shows_query = db.session.query(Venue.id.label('venue_id'),Venue.name.label('venue_name'),Venue.image_link.label('venue_image_link'),Show.start_time).filter(Venue.id==Show.venue_id).filter(Show.artist_id==Artist.id).filter(Artist.id==artist_id)
 
 	upcoming_shows = shows_query.filter(Show.start_time >= datetime.datetime.now()).all() #== pour garder les show a venir
 
@@ -278,13 +278,12 @@ def show_artist(artist_id):
 		"id": good_artist_id.id,
 		"name": good_artist_id.name,
 		"genres": artist_genres,
-		"address": good_artist_id.address,
 		"city": good_artist_id.city,
 		"state": good_artist_id.state,
 		"phone": good_artist_id.phone,
 		"website_link": good_artist_id.website_link,
 		"facebook_link": good_artist_id.facebook_link,
-		"seeking_talent": good_artist_id.seeking_talent,
+		"seeking_venue": good_artist_id.seeking_venue,
 		"image_link": good_artist_id.image_link,
 		"past_shows": past_shows,
 		"upcoming_shows": upcoming_shows,
@@ -292,7 +291,7 @@ def show_artist(artist_id):
 		"upcoming_shows_count": len(upcoming_shows),
 	}
 
-	if good_artist_id.seeking_talent:
+	if good_artist_id.seeking_venue:
 		data['seeking_description'] = good_artist_id.seeking_description
 	else:
 		data['seeking_description'] = ''
@@ -310,7 +309,7 @@ def edit_artist(artist_id):
 		if not get_artist:
 			abort(404)
 		
-		form = ArtistForm(obj=get_artist)
+		form = ArtistForm()
 
 		artist = {
 			"id": get_artist.id,
@@ -321,7 +320,8 @@ def edit_artist(artist_id):
 		for genre in get_artist.genres:
 			artist_genres.append(genre.name)
 		
-		form.genres.data = artist_genres
+		if artist_genres:
+			form.genres.data = artist_genres
 
 		return render_template('forms/edit_artist.html', form=form, artist=artist)
 

@@ -61,7 +61,7 @@ class Venue(db.Model):
     seeking_description = db.Column(db.String())
 
     #=================== Une venue a plusieurs shows =============================#
-    shows = db.relationship("Show", backref="venue", cascade="all, delete-orphan")
+    shows = db.relationship("Show", backref="venue", cascade="all, delete")
 
     def __repr__(self):
         return f'<Venue {self.id} {self.name} {self.state} {self.address} {self.phone} {self.genres} {self.facebook_link} {self.image_link} {self.image_link} {self.seeking_talent} {self.seeking_description}>'
@@ -95,7 +95,7 @@ class Artist(db.Model):
     seeking_description = db.Column(db.String())
 
     #=================== Un artiste a plusieurs shows =============================#
-    shows = db.relationship("Show", backref="artist", cascade="all, delete-orphan")
+    shows = db.relationship("Show", backref="artist", cascade="all, delete")
 
     def __repr__(self):
         return f'<Artist {self.id} {self.name} {self.city} {self.state} {self.phone} {self.genres} {self.image_link} {self.facebook_link} {self.website_link} {self.seeking_venue} {self.seeking_description}>'

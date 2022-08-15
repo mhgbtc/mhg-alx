@@ -89,18 +89,15 @@ def is_valid_id(form, id):
 # Implementation de la validation du numero de telephone
 
 # ========================================================
-# Formes Valides : 
-# +1-xxx-xxx-xx
-# +11-xxx-xxx-xx
-# +111-xxx-xxx-xx
+#================Explanation: Only xxx-xxx-xxxx phone number will be accepted
 # ========================================================
 
 def phone_number_validation(form, phone):
-    my_validate_phone = '^\+[0-9]{1,3}-[0-9]{3}-[0-9]{3}-[0-9]{2}$'
+    my_validate_phone = '^[0-9]{3}-[0-9]{3}-[0-9]{4}$'
     match = re.search(my_validate_phone, phone.data)
     if not match:
         raise ValidationError(
-            "Error ! Phone number must be in format +xxx-xxx-xxx-xx"
+            "Error ! Phone number must be in format xxx-xxx-xxxx"
         )
 
 
@@ -170,8 +167,8 @@ class ArtistForm(Form):
         choices=state_available
     )
     phone = StringField(
-        # TODO implement validation logic for state
         'phone',
+        # TODO implement validation logic for state
         validators=[phone_number_validation]
     )
     image_link = StringField(
@@ -193,6 +190,6 @@ class ArtistForm(Form):
     seeking_venue = BooleanField( 'seeking_venue' )
 
     seeking_description = StringField(
-            'seeking_description'
+        'seeking_description'
      )
 
