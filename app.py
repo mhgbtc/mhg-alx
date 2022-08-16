@@ -1,10 +1,10 @@
 #----------------------------------------------------------------------------#
 # Imports
 #----------------------------------------------------------------------------#
-
 import json
 from os import abort
 from unicodedata import name
+from unittest import result
 from urllib import response
 from webbrowser import get
 import dateutil.parser
@@ -88,15 +88,18 @@ def venues():
 
 # ======== J'implemente la fonctionnalite de recherche incensive a la casse =========================
 
-
 @app.route('/venues/search', methods=['POST'])
 def search_venues():
-    # =========Je recupere ce que recherche l'utilisateur
-    search_term = request.form.get('search_term', '')
-    # ====== << ilike >> pour retourner des resultats ne prenant pas en charge la casse
-    response = Venue.query.order_by(Venue.name).filter(Venue.name.ilike('%' + search_term + '%')).all()
-    count = len(response)
-    return render_template('pages/search_venues.html', results=response, count=count)
+	# =========Je recupere ce que recherche l'utilisateur
+	search_term = request.form.get('search_term', '')
+	# ====== << ilike >> pour retourner des resultats ne prenant pas en charge la casse
+	results = Venue.query.order_by(Venue.name).filter(Venue.name.ilike('%' + search_term + '%')).all()
+	response = {
+		"data": results,
+		"count": len(results)
+	}
+
+	return render_template('pages/search_venues.html', results=response, search_term=request.form.get('search_term', ''))
 
 # ============== Pour afficher une venue unique =====================================
 
@@ -110,7 +113,7 @@ def show_venue(venue_id):
 
 	# Une jointure s'impose parce qu'on fait intervenir la table Show
 
-	shows_query = db.session.query(Show).join(Venue).filter(Venue.id==venue_id).order_by(Show.start_time)
+	shows_query = db.session.query(Artist.id.label('artist_id'),Artist.name.label('artist_name'),Artist.image_link.label('artist_image_link'),Show.start_time).filter(Artist.id==Show.artist_id).filter(Show.venue_id==Venue.id).filter(Venue.id==venue_id)
 
 	upcoming_shows = shows_query.filter(Show.start_time >= datetime.datetime.now()).all() #== pour garder les show a venir
 
@@ -182,8 +185,7 @@ def create_venue_submission():
 		if request.form.getList('genres'):
 			for genre in request.form.getList('genres'):
 				new_genre = Genre.query.filter(Genre.name==genre).first()
-				if new_genre:
-					venue.genres.append(new_genre)
+				venue.genres.append(new_genre)
 
 		db.session.add(venue)
 		db.session.commit()
@@ -242,13 +244,16 @@ def artists():
 
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
-    search_term = request.form.get('search_term', '')
-    # TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
-    # seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
-    # search for "band" should return "The Wild Sax Band".
-    response = Artist.query.order_by(Artist.name).filter(Artist.name.ilike('%' + search_term + '%')).all()
-    count = len(response)
-    return render_template('pages/search_artists.html', results=response, count=count, search_term=search_term)
+	search_term = request.form.get('search_term', '')
+	# TODO: implement search on artists with partial string search. Ensure it is case-insensitive.
+	# seach for "A" should return "Guns N Petals", "Matt Quevado", and "The Wild Sax Band".
+	# search for "band" should return "The Wild Sax Band".
+	results = Artist.query.order_by(Artist.name).filter(Artist.name.ilike('%' + search_term + '%')).all()
+	response = {
+		"data":results,
+		"count":len(results)
+	}
+	return render_template('pages/search_artists.html', results=response, search_term = request.form.get('search_term', ''))
 
 # --------------------------Obtenir tous les details sur un artiste selon son id--------------------------------------------#
 

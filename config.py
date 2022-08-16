@@ -1,4 +1,3 @@
-import psycopg2
 import os
 SECRET_KEY = os.urandom(32)
 # Grabs the folder where the script runs.
@@ -10,5 +9,5 @@ DEBUG = True
 # Connect to the database
 
 # TODO IMPLEMENT DATABASE URL
-SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:root@localhost:5432/fyyur_db'
+SQLALCHEMY_DATABASE_URI = 'postgresql://postgres:root@localhost:5432/fyyurdb'
 SQLALCHEMY_TRACK_MODIFICATIONS = False
