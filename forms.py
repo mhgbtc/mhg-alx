@@ -1,7 +1,7 @@
 from datetime import datetime
-from flask_wtf import Form
-from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField
-from wtforms.validators import DataRequired, AnyOf, URL, ValidationError
+from flask_wtf import FlaskForm
+from wtforms import StringField, SelectField, SelectMultipleField, DateTimeField, BooleanField, SubmitField, TelField
+from wtforms.validators import DataRequired, URL, ValidationError
 import re
 
 state_available = [
@@ -80,6 +80,34 @@ genre_available =  [
     ('Other', 'Other'),
 ]
 
+def validate_genre(form, genre):
+    genres = [
+        'Alternative',
+        'Blues'
+        'Classical',
+        'Country',
+        'Electronic',
+        'Folk',
+        'Funk',
+        'Hip-Hop',
+        'Heavy Metal',
+        'Instrumental',
+        'Jazz',
+        'Musical Theatre',
+        'Pop',
+        'Punk',
+        'R&B',
+        'Reggae',
+        'Rock n Roll',
+        'Soul',
+        'Other'
+    ]
+    for genre in genre.data:
+        if genre not in genres:
+            raise ValidationError(
+                'This genre is not allowed'
+            )
+
 # Fonction pour me rassurer de recevoir des entrees numeriques valides
 def is_valid_id(form, id):
     if not str(id.data).isnumeric():
@@ -101,7 +129,7 @@ def phone_number_validation(form, phone):
         )
 
 
-class ShowForm(Form):
+class ShowForm(FlaskForm):
     artist_id = StringField(
         'artist_id',
         validators=[DataRequired(), is_valid_id]
@@ -115,8 +143,9 @@ class ShowForm(Form):
         validators=[DataRequired()],
         default= datetime.today()
     )
+    submit = SubmitField("Create Show")
 
-class VenueForm(Form):
+class VenueForm(FlaskForm):
     name = StringField(
         'name', validators=[DataRequired()]
     )
@@ -130,7 +159,7 @@ class VenueForm(Form):
     address = StringField(
         'address', validators=[DataRequired()]
     )
-    phone = StringField(
+    phone = TelField(
         'phone',
         validators=[DataRequired(), phone_number_validation]
     )
@@ -139,7 +168,7 @@ class VenueForm(Form):
     )
     genres = SelectMultipleField(
         # TODO implement enum restriction
-        'genres', validators=[DataRequired()],
+        'genres', validators=[DataRequired(), validate_genre],
         choices=genre_available
     )
     facebook_link = StringField(
@@ -148,14 +177,16 @@ class VenueForm(Form):
     website_link = StringField(
         'website_link'
     )
-
     seeking_talent = BooleanField( 'seeking_talent' )
-
     seeking_description = StringField(
         'seeking_description'
     )
+    submit = SubmitField("Create Venue")
 
-class ArtistForm(Form):
+class VenueEditForm(VenueForm):
+    submit = SubmitField("Edit Venue")
+
+class ArtistForm(FlaskForm):
     name = StringField(
         'name', validators=[DataRequired()]
     )
@@ -166,7 +197,7 @@ class ArtistForm(Form):
         'state', validators=[DataRequired()],
         choices=state_available
     )
-    phone = StringField(
+    phone = TelField(
         'phone',
         # TODO implement validation logic for state
         validators=[phone_number_validation]
@@ -175,21 +206,21 @@ class ArtistForm(Form):
         'image_link'
     )
     genres = SelectMultipleField(
-        'genres', validators=[DataRequired()],
+        'genres', validators=[DataRequired(), validate_genre],
         choices=genre_available
      )
     facebook_link = StringField(
         # TODO implement enum restriction
         'facebook_link', validators=[URL()]
      )
-
     website_link = StringField(
         'website_link'
      )
-
     seeking_venue = BooleanField( 'seeking_venue' )
-
     seeking_description = StringField(
         'seeking_description'
      )
+    submit = SubmitField("Create Artist")
 
+class ArtistEditForm(ArtistForm):
+    submit = SubmitField("Edit Artist")
