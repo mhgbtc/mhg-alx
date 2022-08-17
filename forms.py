@@ -83,7 +83,7 @@ genre_available =  [
 def validate_genre(form, genre):
     genres = [
         'Alternative',
-        'Blues'
+        'Blues',
         'Classical',
         'Country',
         'Electronic',
@@ -100,7 +100,7 @@ def validate_genre(form, genre):
         'Reggae',
         'Rock n Roll',
         'Soul',
-        'Other'
+        'Other',
     ]
     for genre in genre.data:
         if genre not in genres:

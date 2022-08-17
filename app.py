@@ -244,7 +244,6 @@ def artists():
 
 # --------------------------Chercher des artistes avec non sensitive casse--------------------------------------------#
 
-
 @app.route('/artists/search', methods=['POST'])
 def search_artists():
 	form = ArtistForm()
@@ -263,7 +262,6 @@ def search_artists():
 	return render_template('pages/search_artists.html', results=response, search_term = request.form.get('search_term', ''), form=form)
 
 # --------------------------Obtenir tous les details sur un artiste selon son id--------------------------------------------#
-
 
 @app.route('/artists/<int:artist_id>')
 def show_artist(artist_id):
